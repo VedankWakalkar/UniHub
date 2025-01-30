@@ -8,7 +8,8 @@ from prisma import Prisma, errors
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-from passlib.context import CryptContext 
+from passlib.context import CryptContext
+
 
 # Pydantic models for request validation
 class CreateStudent(BaseModel):
@@ -48,7 +49,7 @@ class UserRequest(BaseModel):
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all domains, change to specific domains for more security
+    allow_origins=["http://localhost:3000"],  # Allows all domains, change to specific domains for more security
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods (GET, POST, OPTIONS, etc.)
     allow_headers=["*"],  # Allows all headers
@@ -135,7 +136,7 @@ class DocumentResponse(BaseModel):
     createdAt: datetime
 
 # Create a new student
-@app.post("/register/", response_model=StudentCreate)
+@app.post("/students/", response_model=StudentCreate)
 async def create_student(student: StudentCreate):
     try:
         created_student = await db.student.create(
@@ -180,17 +181,6 @@ async def create_document(document: DocumentCreate):
 async def get_documents():
     documents = await db.document.find_many()
     return documents
-
-@app.get("/students/{email}", response_model=StudentCreate)
-async def get_student(email: str):
-    student_data = await db.student.find_first(
-        where={"email": email}
-    )
-    
-    if not student_data:
-        return {"error": "Student not found"}
-    
-    return student_data
 
 # Get a single document by ID
 @app.get("/documents/{document_id}", response_model=DocumentResponse)
@@ -249,11 +239,12 @@ async def login(request: LoginRequest):
         raise HTTPException(status_code=404, detail="User not found")
 
     # Verify password
+
     if not verify_password(request.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     # Return user role or token (you can use JWT for tokens)
-    return {"role": user}
+    return {"user_data": user}
 
 class RegisterRequest(BaseModel):
     name: str
@@ -285,3 +276,110 @@ async def register(request: RegisterRequest):
         }
     )
     return {"message": "User registered successfully", "user": user}
+
+# Endpoint to fetch active orders
+@app.get("/orders/active")
+async def get_active_orders():
+    # Fetch active printing and canteen orders
+    documents = await db.document.find_many(
+        where={"orderTrack": {"in": ["PENDING", "PRINTING"]}},
+        select={
+            "id": True,
+            "documentType": True,
+            "copies": True,
+            "color": True,
+            "createdAt": True,
+            "orderTrack": True,
+        },
+    )
+    canteens = await db.canteen.find_many(
+        where={"orderTrack": {"in": ["PENDING", "PREPARING", "READY"]}},
+        select={
+            "id": True,
+            "catalogFood": True,
+            "foodItems": True,
+            "timing": True,
+            "orderTrack": True,
+        },
+    )
+
+    # Transform data into the desired format
+    active_orders = [
+        {
+            "id": doc.id,
+            "type": "printing",
+            "status": doc.orderTrack,
+            "details": f"{doc.copies} pages, {'Color' if doc.color else 'B&W'} Print",
+            "time": doc.createdAt.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        for doc in documents
+    ] + [
+        {
+            "id": ctn.id,
+            "type": "canteen",
+            "status": ctn.orderTrack,
+            "details": ", ".join([f"{item['quantity']}x {item['name']}" for item in ctn.foodItems]),
+            "time": ctn.timing.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        for ctn in canteens
+    ]
+
+    return active_orders
+
+# Endpoint to fetch order history
+@app.get("/orders/history")
+async def get_order_history():
+    # Fetch completed or canceled printing and canteen orders
+    documents = await db.document.find_many(
+        where={"orderTrack": {"in": ["COMPLETED", "CANCELED"]}},
+        select={
+            "id": True,
+            "documentType": True,
+            "copies": True,
+            "color": True,
+            "createdAt": True,
+            "orderTrack": True,
+        },
+    )
+    canteens = await db.canteen.find_many(
+        where={"orderTrack": {"in": ["COMPLETED", "CANCELED"]}},
+        select={
+            "id": True,
+            "catalogFood": True,
+            "foodItems": True,
+            "timing": True,
+            "orderTrack": True,
+        },
+    )
+
+    # Transform data into the desired format
+    order_history = [
+        {
+            "id": doc.id,
+            "type": "printing",
+            "status": doc.orderTrack,
+            "details": f"{doc.copies} pages, {'Color' if doc.color else 'B&W'} Print",
+            "date": doc.createdAt.strftime("%Y-%m-%d"),
+        }
+        for doc in documents
+    ] + [
+        {
+            "id": ctn.id,
+            "type": "canteen",
+            "status": ctn.orderTrack,
+            "details": ", ".join([f"{item['quantity']}x {item['name']}" for item in ctn.foodItems]),
+            "date": ctn.timing.strftime("%Y-%m-%d"),
+        }
+        for ctn in canteens
+    ]
+
+    return order_history
+
+@app.get("/student/")
+async def get_student(email: str):
+    student = await db.student.find_unique(
+        where={"email": email}
+    )
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return student

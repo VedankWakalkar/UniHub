@@ -32,10 +32,15 @@ export default function SignIn() {
         email,
         password,
       });
+      // Store email in sessionStorage
+      sessionStorage.setItem("userEmail", email);
+      router.push(`/dashboard`);
 
       // Redirect based on user role
-      const { role } = response.data;
-      switch (role) {
+      const  user_data  = response.data;
+      sessionStorage.setItem("userEmail", email);
+      console.log(user_data.user_data.role)
+      switch (user_data.user_data.role) {
         case "student":
           router.push("/dashboard");
           break;
@@ -48,7 +53,7 @@ export default function SignIn() {
         default:
           throw new Error("Unknown role");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Login failed:", error.response?.data || error.message);
       alert("Invalid credentials. Please try again.");
     } finally {
