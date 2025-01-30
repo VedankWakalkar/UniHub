@@ -18,14 +18,16 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 bg-blue-500`}
+      className={`fixed w-full z-50 transition-all duration-300 bg-white/10 ${
+        isScrolled ? "shadow-2xl rounded-xl" : ""
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-2">
             <span
               className={`text-xl font-bold ${
-                isScrolled ? "text-white" : "text-white"
+                isScrolled ? "text-black" : "text-white"
               }`}
             >
               CampusServices
@@ -36,7 +38,7 @@ export function Navbar() {
             <Link
               href="/services/printing"
               className={`${
-                isScrolled ? "text-white" : "text-white"
+                isScrolled ? "text-black font-semibold" : "text-white"
               } hover:text-black transition-colors`}
             >
               Printing
@@ -44,7 +46,7 @@ export function Navbar() {
             <Link
               href="/services/canteen"
               className={`${
-                isScrolled ? "text-white" : "text-white"
+                isScrolled ? "text-black font-semibold" : "text-white"
               } hover:text-black transition-colors`}
             >
               Canteen
@@ -52,7 +54,7 @@ export function Navbar() {
             <Link
               href="/services/about"
               className={`${
-                isScrolled ? "text-white" : "text-white"
+                isScrolled ? "text-black font-semibold" : "text-white"
               } hover:text-black transition-colors`}
             >
               About
@@ -60,7 +62,7 @@ export function Navbar() {
             <Link
               href="/services/contact"
               className={`${
-                isScrolled ? "text-white" : "text-white"
+                isScrolled ? "text-black font-semibold" : "text-white"
               } hover:text-black transition-colors`}
             >
               Contact
@@ -68,12 +70,14 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Button
-              variant={isScrolled ? "default" : "outline"}
-              className={"hover:text-blue-500 font-semibold"}
-            >
-              <Link href="/auth/signin">Sign In</Link>
-            </Button>
+            <Link href="/auth/signin">
+              <Button
+                variant={isScrolled ? "default" : "outline"}
+                className={"hover:text-blue-500 font-semibold"}
+              >
+                Sign In
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

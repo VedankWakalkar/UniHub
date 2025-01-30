@@ -49,7 +49,7 @@ export default function SignIn() {
         default:
           throw new Error("Unknown role");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed:", error.response?.data || error.message);
       alert("Invalid credentials. Please try again.");
     } finally {
@@ -104,13 +104,12 @@ export default function SignIn() {
         <div className="mt-6 text-center text-sm text-gray-600">
           Don't have an account?{" "}
           <Link href={"/auth/signup"}>
-          <Button
-            variant="link"
-            className="text-blue-600 hover:underline p-0 h-auto"
-           
-          >
-            Sign Up
-          </Button>
+            <Button
+              variant="link"
+              className="text-blue-600 hover:underline p-0 h-auto"
+            >
+              Sign Up
+            </Button>
           </Link>
         </div>
       </Card>
