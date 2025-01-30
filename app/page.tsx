@@ -34,8 +34,7 @@ export default async function Home() {
                 </Button>
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="text-white border-white hover:bg-white/10"
+                  className="bg-white text-blue-600 hover:bg-blue-50"
                 >
                   Learn More
                 </Button>
