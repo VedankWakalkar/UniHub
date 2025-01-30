@@ -1,5 +1,7 @@
-groq
 fastapi
 uvicorn
-requests
+prisma
+passlib
+groq
 pydantic
+httpx

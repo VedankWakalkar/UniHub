@@ -1,14 +1,10 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-py"
 }
 
-// prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -19,10 +15,21 @@ model Student {
   name             String
   email            String             @unique
   password         String
-  role             String
+  role             String     
+  payment          PaymentHistory[]  // Added PaymentHistory model
   documentHistory  DocumentHistory[]
   foodOrderHistory FoodOrderHistory[]
   documents        Document[]
+}
+
+model PaymentHistory {
+  id          String       @id @default(uuid())
+  studentId   String
+  student     Student      @relation(fields: [studentId], references: [id])
+  amount      Float
+  status      PaymentStatus
+  description String?
+  createdAt   DateTime     @default(now())
 }
 
 model Document {
@@ -101,4 +108,10 @@ model FoodOrderHistory {
   itemQuantity Json
   requestTime  DateTime
   receivedTime DateTime?
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }

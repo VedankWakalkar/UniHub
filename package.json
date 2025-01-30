@@ -82,6 +82,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/axios": "^0.9.36",
-    "prisma": "^6.3.0"
+    "prisma": "^5.22.0"
   }
 }
