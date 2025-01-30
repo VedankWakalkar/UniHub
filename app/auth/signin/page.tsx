@@ -23,7 +23,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
 
   // Handle login form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
 

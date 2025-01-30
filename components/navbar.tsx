@@ -18,7 +18,7 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 bg-white/10 ${
+      className={`fixed w-full z-50 transition-all duration-300 bg-blue-600 border-black ${
         isScrolled ? "shadow-2xl rounded-xl" : ""
       }`}
     >
@@ -39,7 +39,7 @@ export function Navbar() {
               href="/services/printing"
               className={`${
                 isScrolled ? "text-black font-semibold" : "text-white"
-              } hover:text-black transition-colors`}
+              } text-black hover:text-black transition-colors`}
             >
               Printing
             </Link>
