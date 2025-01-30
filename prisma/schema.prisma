@@ -19,7 +19,6 @@ model Student {
   name             String
   email            String             @unique
   password         String
-  role             String             
   documentHistory  DocumentHistory[]
   foodOrderHistory FoodOrderHistory[]
   documents        Document[]
