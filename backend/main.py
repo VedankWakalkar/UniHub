@@ -1,23 +1,15 @@
 from fastapi import FastAPI, HTTPException
-# from prisma import Prisma
-# from prisma.models import Student, PrintJob, CanteenOrder, Payment
 from pydantic import BaseModel
 from typing import List
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from groq import Groq
+from prisma import Prisma, errors
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
 
-app = FastAPI()
-# prisma = Prisma()
 
-# Initialize the Prisma client
-@app.on_event("startup")
-async def startup():
-    await prisma.connect()
-
-@app.on_event("shutdown")
-async def shutdown():
-    await prisma.disconnect()
 
 # Pydantic models for request validation
 class CreateStudent(BaseModel):
@@ -48,7 +40,7 @@ if not api_key:
     raise ValueError("GROQ_API_KEY is not set in environment variables.")
 
 # Initialize Groq client
-client = Groq(api_key=api_key)
+client = Groq(api_key="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")
 
 class UserRequest(BaseModel):
     user_content: str
@@ -105,114 +97,122 @@ async def handle_service_request(content: UserRequest):
     return {"response": service_response}
 
 
-# Routes for CRUD operations
+db = Prisma()
 
-# 1. Create Student
-@app.post("/students/")
-async def create_student(student: CreateStudent):
-    student = await prisma.student.create(
-        data={
-            'firstName': student.first_name,
-            'lastName': student.last_name,
-            'email': student.email,
-            'phoneNumber': student.phone_number,
-        }
-    )
-    return student
+@app.on_event("startup")
+async def startup():
+    await db.connect()
 
-# 2. Read (Get) Student by ID
-@app.get("/students/{student_id}")
-async def get_student(student_id: int):
-    student = await prisma.student.find_unique(where={"id": student_id})
-    if not student:
-        raise HTTPException(status_code=404, detail="Student not found")
-    return student
+@app.on_event("shutdown")
+async def shutdown():
+    await db.disconnect()
 
-# 3. Update Student
-@app.put("/students/{student_id}")
-async def update_student(student_id: int, student: CreateStudent):
-    updated_student = await prisma.student.update(
-        where={"id": student_id},
-        data={
-            'firstName': student.first_name,
-            'lastName': student.last_name,
-            'email': student.email,
-            'phoneNumber': student.phone_number,
-        }
-    )
-    return updated_student
+# Pydantic models for request/response validation
+class StudentCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: str
 
-# 4. Delete Student
-@app.delete("/students/{student_id}")
-async def delete_student(student_id: int):
-    student = await prisma.student.delete(where={"id": student_id})
-    return {"message": f"Student {student_id} deleted successfully"}
+class DocumentCreate(BaseModel):
+    studentId: str
+    documentType: str
+    copies: int
+    color: bool
+    oneSidePrint: bool
+    token: str
+    payment: float
 
-# 5. Create Print Job
-@app.post("/print-jobs/")
-async def create_print_job(print_job: CreatePrintJob):
-    print_job = await prisma.printJob.create(
-        data={
-            'student': {'connect': {'id': print_job.student_id}},
-            'document': print_job.document,
-            'printSettings': {
-                'create': {
-                    'color': print_job.print_settings['color'],
-                    'paperSize': print_job.print_settings['paperSize'],
-                    'copies': print_job.print_settings['copies'],
-                    'printType': print_job.print_settings['printType'],
-                }
+class DocumentResponse(BaseModel):
+    id: str
+    studentId: str
+    documentType: str
+    copies: int
+    color: bool
+    oneSidePrint: bool
+    token: str
+    payment: float
+    orderTrack: str
+    createdAt: datetime
+
+# Create a new student
+@app.post("/students/", response_model=StudentCreate)
+async def create_student(student: StudentCreate):
+    try:
+        created_student = await db.student.create(
+            data={
+                "name": student.name,
+                "email": student.email,
+                "password": student.password,
+                "role": student.role,
             }
-        }
-    )
-    return print_job
+        )
+        return created_student
+    except errors.UniqueViolationError:
+        raise HTTPException(status_code=400, detail="Email already registered")
 
-# 6. Get Print Jobs for a Student
-@app.get("/students/{student_id}/print-jobs")
-async def get_print_jobs(student_id: int):
-    print_jobs = await prisma.printJob.find_many(where={"studentId": student_id})
-    return print_jobs
+# Get all students
+@app.get("/students/", response_model=List[StudentCreate])
+async def get_students():
+    students = await db.student.find_many()
+    return students
 
-# 7. Create Canteen Order
-@app.post("/canteen-orders/")
-async def create_canteen_order(order: CreateCanteenOrder):
-    order = await prisma.canteenOrder.create(
-        data={
-            'student': {'connect': {'id': order.student_id}},
-            'items': str(order.items),  # You can store items as a string or JSON
-            'totalAmount': order.total_amount,
-            'payment': {
-                'create': {
-                    'paymentMethod': order.payment_method,
-                    'amount': order.total_amount,
-                    'status': 'PENDING',
-                }
+# Create a new document
+@app.post("/documents/", response_model=DocumentResponse)
+async def create_document(document: DocumentCreate):
+    try:
+        created_document = await db.document.create(
+            data={
+                "studentId": document.studentId,
+                "documentType": document.documentType,
+                "copies": document.copies,
+                "color": document.color,
+                "oneSidePrint": document.oneSidePrint,
+                "token": document.token,
+                "payment": document.payment,
             }
-        }
-    )
-    return order
+        )
+        return created_document
+    except errors.UniqueViolationError:
+        raise HTTPException(status_code=400, detail="Token already exists")
 
-# 8. Get Canteen Orders for a Student
-@app.get("/students/{student_id}/canteen-orders")
-async def get_canteen_orders(student_id: int):
-    orders = await prisma.canteenOrder.find_many(where={"studentId": student_id})
-    return orders
+# Get all documents
+@app.get("/documents/", response_model=List[DocumentResponse])
+async def get_documents():
+    documents = await db.document.find_many()
+    return documents
 
-# 9. Create Payment
-@app.post("/payments/")
-async def create_payment(payment: CreatePayment):
-    payment = await prisma.payment.create(
+# Get a single document by ID
+@app.get("/documents/{document_id}", response_model=DocumentResponse)
+async def get_document(document_id: str):
+    document = await db.document.find_unique(where={"id": document_id})
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return document
+
+# Update a document
+@app.put("/documents/{document_id}", response_model=DocumentResponse)
+async def update_document(document_id: str, document: DocumentCreate):
+    updated_document = await db.document.update(
+        where={"id": document_id},
         data={
-            'student': {'connect': {'id': payment.student_id}},
-            'amount': payment.amount,
-            'paymentMethod': payment.payment_method,
-            'status': 'PENDING',
+            "studentId": document.studentId,
+            "documentType": document.documentType,
+            "copies": document.copies,
+            "color": document.color,
+            "oneSidePrint": document.oneSidePrint,
+            "token": document.token,
+            "payment": document.payment,
         }
     )
-    return payment
+    if updated_document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return updated_document
 
-# 10. Get Payments for a Student
-@app.get("/students/{student_id}/payments")
-async def get_payments(student_id: int):
-    payments = await prisma.payment.find_many(where={"studentId": student_id})
-    return payments
+# Delete a document
+@app.delete("/documents/{document_id}")
+async def delete_document(document_id: str):
+    deleted_document = await db.document.delete(where={"id": document_id})
+    if deleted_document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {"message": "Document deleted successfully"}

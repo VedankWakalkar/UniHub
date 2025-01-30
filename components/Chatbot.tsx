@@ -105,7 +105,7 @@ const Chatbot: React.FC = () => {
           <div className="chat-body">
             <div className="welcome-message">
               <p className="text-center text-gray-600">
-                Hi there! how can I help you with
+                Hi! How can I help you today?
               </p>
             </div>
             {messages.map((msg, index) => (
