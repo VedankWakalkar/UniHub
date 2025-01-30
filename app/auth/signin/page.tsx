@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,19 +13,29 @@ import {
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { KeyIcon, UserIcon, ShieldIcon } from "lucide-react";
+import axios from "axios";
+import Link from "next/link";
 
 export default function SignIn() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [role, setRole] = useState("student");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle login form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate authentication
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Send login request to the backend
+      const response = await axios.post("/api/login", {
+        email,
+        password,
+      });
+
+      // Redirect based on user role
+      const { role } = response.data;
       switch (role) {
         case "student":
           router.push("/dashboard");
@@ -37,8 +46,15 @@ export default function SignIn() {
         case "printing":
           router.push("/dashboard/printing");
           break;
+        default:
+          throw new Error("Unknown role");
       }
-    }, 1000);
+    } catch (error) {
+      console.error("Login failed:", error.response?.data || error.message);
+      alert("Invalid credentials. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -51,44 +67,31 @@ export default function SignIn() {
           <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
           <p className="text-gray-600 mt-2">Sign in to your account</p>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <Select value={role} onValueChange={setRole}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select your role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="student">Student</SelectItem>
-                <SelectItem value="canteen">Canteen Staff</SelectItem>
-                <SelectItem value="printing">Printing Staff</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="animate-slide-up"
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               className="animate-slide-up"
             />
           </div>
-
           <Button
             type="submit"
             className="w-full"
@@ -98,11 +101,17 @@ export default function SignIn() {
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
-
         <div className="mt-6 text-center text-sm text-gray-600">
-          <a href="#" className="text-blue-600 hover:underline">
-            Forgot your password?
-          </a>
+          Don't have an account?{" "}
+          <Link href={"/auth/signup"}>
+          <Button
+            variant="link"
+            className="text-blue-600 hover:underline p-0 h-auto"
+           
+          >
+            Sign Up
+          </Button>
+          </Link>
         </div>
       </Card>
     </div>

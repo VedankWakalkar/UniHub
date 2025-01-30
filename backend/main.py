@@ -8,6 +8,7 @@ from prisma import Prisma, errors
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+from passlib.context import CryptContext 
 
 
 
@@ -136,7 +137,7 @@ class DocumentResponse(BaseModel):
     createdAt: datetime
 
 # Create a new student
-@app.post("/students/", response_model=StudentCreate)
+@app.post("/register/", response_model=StudentCreate)
 async def create_student(student: StudentCreate):
     try:
         created_student = await db.student.create(
@@ -216,3 +217,62 @@ async def delete_document(document_id: str):
     if deleted_document is None:
         raise HTTPException(status_code=404, detail="Document not found")
     return {"message": "Document deleted successfully"}
+
+#Login
+# Pydantic model for login request
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+# Password hashing utility
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Helper function to verify password
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+# Login endpoint
+@app.post("/login")
+async def login(request: LoginRequest):
+    # Fetch user from the database
+    user = await db.student.find_unique(where={"email": request.email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Verify password
+    if not verify_password(request.password, user.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # Return user role or token (you can use JWT for tokens)
+    return {"role": user.role}
+
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: str
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+# Registration endpoint
+@app.post("/register")
+async def register(request: RegisterRequest):
+    # Check if the email is already registered
+    existing_user = await db.student.find_unique(where={"email": request.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    # Hash the password
+    hashed_password = hash_password(request.password)
+
+    # Create the user in the database
+    user = await db.student.create(
+        data={
+            "name": request.name,
+            "email": request.email,
+            "password": hashed_password,
+            "role": request.role,
+        }
+    )
+    return {"message": "User registered successfully", "user": user}
