@@ -32,12 +32,12 @@ export default async function Home() {
                 >
                   Get Started
                 </Button>
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-blue-600 hover:bg-blue-50"
                 >
                   Learn More
-                </Button>
+                </Button> */}
               </div>
             </div>
             <div className="hidden md:block animate-float">

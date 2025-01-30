@@ -58,7 +58,7 @@ export function Navbar() {
               About
             </Link>
             <Link
-              href="/contact"
+              href="/services/contact"
               className={`${
                 isScrolled ? "text-white" : "text-white"
               } hover:text-black transition-colors`}
@@ -72,7 +72,7 @@ export function Navbar() {
               variant={isScrolled ? "default" : "outline"}
               className={"hover:text-blue-500 font-semibold"}
             >
-              Sign In
+              <Link href="/auth/signin">Sign In</Link>
             </Button>
           </div>
         </div>

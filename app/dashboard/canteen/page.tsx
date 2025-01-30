@@ -67,7 +67,9 @@ export default function CanteenDashboard() {
     <div className="min-h-screen bg-gray-50 pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-gray-900">Canteen Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Canteen Dashboard
+          </h1>
           <p className="mt-2 text-gray-600">Manage orders and inventory</p>
         </div>
 
@@ -90,7 +92,7 @@ export default function CanteenDashboard() {
                 <TrendingUpIcon className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Today's Sales</p>
+                <p className="text-sm text-gray-600">Todays Sales</p>
                 <p className="text-2xl font-bold">$524.99</p>
               </div>
             </div>
@@ -138,7 +140,9 @@ export default function CanteenDashboard() {
                     </div>
                     <div className="flex items-center space-x-4">
                       <Badge
-                        variant={order.status === "Ready" ? "success" : "warning"}
+                        variant={
+                          order.status === "Ready" ? "success" : "warning"
+                        }
                       >
                         {order.status}
                       </Badge>
@@ -174,7 +178,9 @@ export default function CanteenDashboard() {
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={item.status === "Good" ? "success" : "warning"}
+                          variant={
+                            item.status === "Good" ? "success" : "warning"
+                          }
                         >
                           {item.status}
                         </Badge>

@@ -67,17 +67,29 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start" asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  asChild
+                >
                   <Link href="/dashboard">
                     <ClockIcon className="mr-2 h-4 w-4" /> Dashboard
                   </Link>
                 </Button>
-                <Button variant="ghost" className="w-full justify-start" asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  asChild
+                >
                   <Link href="/dashboard/orders">
                     <HistoryIcon className="mr-2 h-4 w-4" /> Order History
                   </Link>
                 </Button>
-                <Button variant="ghost" className="w-full justify-start" asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  asChild
+                >
                   <Link href="/dashboard/payments">
                     <CreditCardIcon className="mr-2 h-4 w-4" /> Payments
                   </Link>
@@ -101,7 +113,9 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">Print Documents</h3>
-                      <p className="text-sm text-gray-500">Start a new print job</p>
+                      <p className="text-sm text-gray-500">
+                        Start a new print job
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -114,7 +128,9 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">Order Food</h3>
-                      <p className="text-sm text-gray-500">Browse canteen menu</p>
+                      <p className="text-sm text-gray-500">
+                        Browse canteen menu
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -141,7 +157,9 @@ export default function Dashboard() {
                             )}
                             <div>
                               <p className="font-medium">{order.details}</p>
-                              <p className="text-sm text-gray-500">{order.time}</p>
+                              <p className="text-sm text-gray-500">
+                                {order.time}
+                              </p>
                             </div>
                           </div>
                           <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
@@ -167,7 +185,9 @@ export default function Dashboard() {
                             )}
                             <div>
                               <p className="font-medium">{order.details}</p>
-                              <p className="text-sm text-gray-500">{order.date}</p>
+                              <p className="text-sm text-gray-500">
+                                {order.date}
+                              </p>
                             </div>
                           </div>
                           <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
