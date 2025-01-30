@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState, ChangeEvent, KeyboardEvent } from 'react';
-import axios from 'axios';
+import { useState, ChangeEvent, KeyboardEvent } from "react";
+import axios from "axios";
 
 interface Message {
-  sender: 'user' | 'ai';
+  sender: "user" | "ai";
   text: string;
 }
 
 const Chatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [userMessage, setUserMessage] = useState<string>('');
+  const [userMessage, setUserMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const toggleChat = () => setIsOpen((prev) => !prev);
@@ -23,33 +23,55 @@ const Chatbot: React.FC = () => {
   const handleSendMessage = async () => {
     if (!userMessage.trim()) return;
 
-    setMessages((prev) => [...prev, { sender: 'user', text: userMessage }]);
-    setUserMessage('');
+    setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
+    setUserMessage("");
     setLoading(true);
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/chat', { user_content: userMessage });
-      setMessages((prev) => [...prev, { sender: 'ai', text: response.data.response }]);
+      const response = await axios.post("http://127.0.0.1:8000/chat", {
+        user_content: userMessage,
+      });
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: response.data.response },
+      ]);
     } catch (error) {
-      console.error('Error:', error);
-      setMessages((prev) => [...prev, { 
-        sender: 'ai', 
-        text: "Sorry, I'm having trouble understanding. Please try again." 
-      }]);
+      console.error("Error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "ai",
+          text: "Sorry, I'm having trouble understanding. Please try again.",
+        },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSendMessage();
+    if (e.key === "Enter") handleSendMessage();
   };
 
   return (
     <div className="chatbot-container">
-      <button className={`chatbot-icon ${isOpen ? 'hidden' : ''}`} onClick={toggleChat}>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h4l3 3 3-3h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-3 12H8v-2h8v2zm0-3H8V9h8v2zm0-3H8V6h8v2z"/>
+      <button
+        className={`chatbot-icon ${isOpen ? "hidden" : ""}`}
+        onClick={toggleChat}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          className="h-6 w-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"
+          />
         </svg>
       </button>
 
@@ -58,8 +80,19 @@ const Chatbot: React.FC = () => {
           <div className="chat-header">
             <div className="flex items-center gap-3">
               <div className="ai-avatar">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <h3 className="text-lg font-semibold">AI Assistant</h3>
@@ -71,7 +104,9 @@ const Chatbot: React.FC = () => {
 
           <div className="chat-body">
             <div className="welcome-message">
-              <p className="text-center text-gray-600">Hello! How can I help you today?</p>
+              <p className="text-center text-gray-600">
+                chinmay yeda bhokacha !! ani varun madaerchod randi
+              </p>
             </div>
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.sender}`}>
@@ -98,11 +133,16 @@ const Chatbot: React.FC = () => {
                 value={userMessage}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
+                placeholder="message tak ki ..."
                 className="message-input"
               />
               <button onClick={handleSendMessage} className="send-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
                   <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                 </svg>
               </button>
@@ -120,7 +160,7 @@ const Chatbot: React.FC = () => {
         }
 
         .chatbot-icon {
-          background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
           border: none;
           border-radius: 50%;
           padding: 1rem;
@@ -150,7 +190,7 @@ const Chatbot: React.FC = () => {
         }
 
         .chat-header {
-          background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
           color: white;
           padding: 1.25rem;
           display: flex;
@@ -214,7 +254,7 @@ const Chatbot: React.FC = () => {
         }
 
         .message.user .message-content {
-          background: #3B82F6;
+          background: #3b82f6;
           color: white;
           border-radius: 1rem 1rem 0 1rem;
         }
@@ -248,8 +288,14 @@ const Chatbot: React.FC = () => {
         }
 
         @keyframes bounce {
-          0%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-6px); }
+          0%,
+          80%,
+          100% {
+            transform: translateY(0);
+          }
+          40% {
+            transform: translateY(-6px);
+          }
         }
 
         .chat-footer {
@@ -274,12 +320,12 @@ const Chatbot: React.FC = () => {
         }
 
         .message-input:focus {
-          border-color: #3B82F6;
+          border-color: #3b82f6;
           box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .send-btn {
-          background: #3B82F6;
+          background: #3b82f6;
           color: white;
           border: none;
           padding: 0.75rem;
@@ -289,7 +335,7 @@ const Chatbot: React.FC = () => {
         }
 
         .send-btn:hover {
-          background: #2563EB;
+          background: #2563eb;
         }
 
         ::-webkit-scrollbar {
