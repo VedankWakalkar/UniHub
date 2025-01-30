@@ -9,8 +9,6 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-
-
 # Pydantic models for request validation
 class CreateStudent(BaseModel):
     first_name: str
