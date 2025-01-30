@@ -68,7 +68,9 @@ export default function PrintingDashboard() {
     <div className="min-h-screen bg-gray-50 pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-gray-900">Printing Service Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Printing Service Dashboard
+          </h1>
           <p className="mt-2 text-gray-600">Manage print jobs and supplies</p>
         </div>
 
@@ -145,7 +147,9 @@ export default function PrintingDashboard() {
                       <TableCell>{job.pages}</TableCell>
                       <TableCell>
                         <Badge
-                          variant={job.status === "Printing" ? "success" : "warning"}
+                          variant={
+                            job.status === "Printing" ? "success" : "warning"
+                          }
                         >
                           {job.status}
                         </Badge>
@@ -186,7 +190,9 @@ export default function PrintingDashboard() {
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={item.status === "Good" ? "success" : "warning"}
+                          variant={
+                            item.status === "Good" ? "success" : "warning"
+                          }
                         >
                           {item.status}
                         </Badge>

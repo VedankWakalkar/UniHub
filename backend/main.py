@@ -181,6 +181,17 @@ async def get_documents():
     documents = await db.document.find_many()
     return documents
 
+@app.get("/students/{email}", response_model=StudentCreate)
+async def get_student(email: str):
+    student_data = await db.student.find_first(
+        where={"email": email}
+    )
+    
+    if not student_data:
+        return {"error": "Student not found"}
+    
+    return student_data
+
 # Get a single document by ID
 @app.get("/documents/{document_id}", response_model=DocumentResponse)
 async def get_document(document_id: str):
@@ -242,7 +253,7 @@ async def login(request: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     # Return user role or token (you can use JWT for tokens)
-    return {"role": user.role}
+    return {"role": user}
 
 class RegisterRequest(BaseModel):
     name: str
