@@ -90,5 +90,6 @@ Start the development server:
 
 ```
 npm run dev  # Frontend
+cd backend
 uvicorn backend.main:app --reload  # Backend
 ```

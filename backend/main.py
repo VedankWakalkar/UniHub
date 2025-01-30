@@ -49,7 +49,7 @@ if not api_key:
     raise ValueError("GROQ_API_KEY is not set in environment variables.")
 
 # Initialize Groq client
-client = Groq(api_key=api_key)
+client = Groq(api_key="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")
 
 class UserRequest(BaseModel):
     user_content: str
