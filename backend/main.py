@@ -10,8 +10,6 @@ from typing import List, Optional
 from datetime import datetime
 from passlib.context import CryptContext 
 
-
-
 # Pydantic models for request validation
 class CreateStudent(BaseModel):
     first_name: str
