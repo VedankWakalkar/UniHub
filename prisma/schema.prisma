@@ -15,3 +15,90 @@ datasource db {
   // uncomment next line if you use Prisma <5.10
   // directUrl = env("DATABASE_URL_UNPOOLED")
 }
+
+model Student {
+  id                String        @id @default(uuid())
+  name              String
+  password          String
+  documentHistory   DocumentHistory[]
+  foodOrderHistory  FoodOrderHistory[]
+  documents         Document[]
+}
+
+model Document {
+  id            String   @id @default(uuid())
+  studentId     String
+  student       Student  @relation(fields: [studentId], references: [id])
+  documentType  String
+  copies        Int
+  color         Boolean
+  oneSidePrint  Boolean
+  token         String   @unique
+  payment       Float
+  orderTrack    PrintStatus @default(PENDING)
+  accessories   Accessories?
+  createdAt     DateTime @default(now())
+}
+
+enum PrintStatus {
+  PENDING
+  PRINTING
+  COMPLETED
+  CANCELED
+}
+
+model Accessories {
+  id         String   @id @default(uuid())
+  documentId String   @unique
+  document   Document @relation(fields: [documentId], references: [id])  // Added reverse relation
+  catalogCC  String
+  payment    Float
+  orders     Json
+}
+
+model Canteen {
+  id               String    @id @default(uuid())
+  catalogFood      String
+  token            String    @unique
+  foodItems        Json
+  orderTrack       OrderStatus @default(PENDING)
+  timing           DateTime
+  payment          Float
+  tableReservation TableReservation?
+  createdAt        DateTime @default(now())
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  COMPLETED
+  CANCELED
+}
+
+model TableReservation {
+  id        String   @id @default(uuid())
+  tableNo   Int
+  seats     Int
+  timeSlot  DateTime
+  canteenId String   @unique  // Added @unique to fix one-to-one relation
+  canteen   Canteen  @relation(fields: [canteenId], references: [id])
+}
+
+model DocumentHistory {
+  id               String   @id @default(uuid())
+  studentId        String
+  student          Student  @relation(fields: [studentId], references: [id])
+  documentType     String
+  requestTime      DateTime
+  receivedTime     DateTime?
+}
+
+model FoodOrderHistory {
+  id               String   @id @default(uuid())
+  studentId        String
+  student          Student  @relation(fields: [studentId], references: [id])
+  itemQuantity     Json
+  requestTime      DateTime
+  receivedTime     DateTime?
+}
