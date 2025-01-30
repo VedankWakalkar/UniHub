@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 # from prisma import Prisma
 # from prisma.models import Student, PrintJob, CanteenOrder, Payment
+# from Config.Connection import prisma_connection
 from pydantic import BaseModel
 from typing import List
 import os
