@@ -4,13 +4,30 @@ CREATE TYPE "PrintStatus" AS ENUM ('PENDING', 'PRINTING', 'COMPLETED', 'CANCELED
 -- CreateEnum
 CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'PREPARING', 'READY', 'COMPLETED', 'CANCELED');
 
+-- CreateEnum
+CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'COMPLETED', 'FAILED');
+
 -- CreateTable
 CREATE TABLE "Student" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PaymentHistory" (
+    "id" TEXT NOT NULL,
+    "studentId" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "status" "PaymentStatus" NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PaymentHistory_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -88,6 +105,9 @@ CREATE TABLE "FoodOrderHistory" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Student_email_key" ON "Student"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Document_token_key" ON "Document"("token");
 
 -- CreateIndex
@@ -98,6 +118,9 @@ CREATE UNIQUE INDEX "Canteen_token_key" ON "Canteen"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "TableReservation_canteenId_key" ON "TableReservation"("canteenId");
+
+-- AddForeignKey
+ALTER TABLE "PaymentHistory" ADD CONSTRAINT "PaymentHistory_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Document" ADD CONSTRAINT "Document_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
