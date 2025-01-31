@@ -140,7 +140,7 @@ export default function CanteenService() {
                                 {item.description}
                               </p>
                             </div>
-                            <span className="font-semibold">${item.price.toFixed(2)}</span>
+                            <span className="font-semibold">₹{item.price.toFixed(2)}</span>
                           </div>
                           <Button
                             onClick={() => addToCart(item)}
