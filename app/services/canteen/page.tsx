@@ -178,7 +178,9 @@ export default function CanteenService() {
                                 {item.description}
                               </p>
                             </div>
-                            <span className="font-semibold">₹{item.price.toFixed(2)}</span>
+                            <span className="font-semibold">
+                              ₹{item.price.toFixed(2)}
+                            </span>
                           </div>
                           <Button
                             onClick={() => addToCart(item)}
@@ -260,7 +262,13 @@ export default function CanteenService() {
                     </div>
                   </div>
                   <Link href="payment">
-                    <Button className="w-full" size="lg">
+                    <Button
+                      onClick={() => {
+                        console.log("Final Cart before order :", cart);
+                      }}
+                      className="w-full"
+                      size="lg"
+                    >
                       Place Order
                     </Button>
                   </Link>
