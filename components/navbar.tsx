@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-
-
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -68,6 +66,14 @@ export function Navbar() {
               } hover:text-black transition-colors`}
             >
               Contact
+            </Link>
+            <Link
+              href="/services/lost"
+              className={`${
+                isScrolled ? "text-black font-semibold" : "text-white"
+              } hover:text-black transition-colors`}
+            >
+              Lost and Found
             </Link>
           </div>
 
