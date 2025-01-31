@@ -45,7 +45,7 @@ export default function SignUp() {
       alert(response.data.message);
 
       // Redirect to login page after successful registration
-      router.push("/login");
+      router.push("/auth/signin");
     } catch (error) {
       console.error("Registration failed:", error.response?.data || error.message);
       alert("Registration failed. Please try again.");
