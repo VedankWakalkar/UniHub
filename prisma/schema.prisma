@@ -27,6 +27,8 @@ model PaymentHistory {
   studentId   String
   student     Student      @relation(fields: [studentId], references: [id])
   amount      Float
+  stripePaymentId String   @unique
+  currency    String       @default("INR")
   status      PaymentStatus
   description String?
   createdAt   DateTime     @default(now())
@@ -40,6 +42,8 @@ model Document {
   copies       Int
   color        Boolean
   oneSidePrint Boolean
+  paymentHistory PaymentHistory? @relation(fields: [paymentHistoryId], references: [id])
+  paymentHistoryId String?
   token        String       @unique
   payment      Float
   orderTrack   PrintStatus  @default(PENDING)
@@ -53,14 +57,30 @@ enum PrintStatus {
   COMPLETED
   CANCELED
 }
+model AccessoryItem {
+  id          String    @id @default(uuid())
+  name        String
+  price       Float
+  description String?
+  createdAt   DateTime  @default(now())
+}
 
 model Accessories {
-  id         String   @id @default(uuid())
-  documentId String   @unique
-  document   Document @relation(fields: [documentId], references: [id]) // Added reverse relation
-  catalogCC  String
-  payment    Float
-  orders     Json
+  id         String     @id @default(uuid())
+  document   Document   @relation(fields: [documentId], references: [id])
+  documentId String     @unique
+  items      AccessoryOrderItem[]
+  createdAt  DateTime   @default(now())
+}
+
+model AccessoryOrderItem {
+  id             String      @id @default(uuid())
+  accessory      AccessoryItem @relation(fields: [accessoryItemId], references: [id])
+  accessoryItemId String
+  accessories    Accessories @relation(fields: [accessoriesId], references: [id])
+  accessoriesId  String
+  quantity       Int
+  createdAt      DateTime    @default(now())
 }
 
 model Canteen {

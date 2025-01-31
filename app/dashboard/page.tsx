@@ -57,8 +57,6 @@ export default function Dashboard() {
           }
         }); 
         console.log(studentResponse.data);
-        const name = studentResponse.data;
-        // Replace with actual endpoint
       
         console.log(studentResponse.data?.name);
 
