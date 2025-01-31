@@ -50,13 +50,18 @@ export default function Dashboard() {
         // setOrderHistory(historyResponse.data);
 
         // Fetch student details
-        console.log(email)
-        const studentResponse = await axios.get("http://127.0.0.1:8000/student",{
-          params: {
-            email: email,
+        console.log(email);
+        const studentResponse = await axios.get(
+          "http://127.0.0.1:8000/student",
+          {
+            params: {
+              email: email,
+            },
           }
-        }); 
+        );
         console.log(studentResponse.data);
+        const name = studentResponse.data;
+        // Replace with actual endpoint
       
         console.log(studentResponse.data?.name);
 
@@ -70,7 +75,7 @@ export default function Dashboard() {
     };
 
     fetchData();
-  },[email]);
+  }, [email]);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
@@ -85,7 +90,9 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold">{student?.name}</h2>
-                  <p className="text-sm text-gray-500">Student ID: {student?.email}</p>
+                  <p className="text-sm text-gray-500">
+                    Student ID: {student?.email}
+                  </p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -179,7 +186,8 @@ export default function Dashboard() {
                               <div>
                                 <p className="font-medium">{order.details}</p>
                                 <p className="text-sm text-gray-500">
-                                  Ordered by: {order.studentName} ({order.studentEmail})
+                                  Ordered by: {order.studentName} (
+                                  {order.studentEmail})
                                 </p>
                               </div>
                             </div>
@@ -213,7 +221,8 @@ export default function Dashboard() {
                               <div>
                                 <p className="font-medium">{order.details}</p>
                                 <p className="text-sm text-gray-500">
-                                  Ordered by: {order.studentName} ({order.studentEmail})
+                                  Ordered by: {order.studentName} (
+                                  {order.studentEmail})
                                 </p>
                               </div>
                             </div>

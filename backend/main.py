@@ -8,7 +8,8 @@ from prisma import Prisma, errors
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-from passlib.context import CryptContext 
+from passlib.context import CryptContext
+
 
 # Pydantic models for request validation
 class CreateStudent(BaseModel):
@@ -135,7 +136,7 @@ class DocumentResponse(BaseModel):
     createdAt: datetime
 
 # Create a new student
-@app.post("/register/", response_model=StudentCreate)
+@app.post("/students/", response_model=StudentCreate)
 async def create_student(student: StudentCreate):
     try:
         created_student = await db.student.create(

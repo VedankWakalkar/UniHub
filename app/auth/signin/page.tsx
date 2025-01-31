@@ -26,7 +26,6 @@ export default function SignIn() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       // Send login request to the backend
       const response = await axios.post("http://127.0.0.1:8000/login", {
