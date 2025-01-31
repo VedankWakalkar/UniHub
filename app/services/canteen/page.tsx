@@ -128,7 +128,7 @@ export default function CanteenService() {
                               <h3 className="font-semibold text-lg">{item.name}</h3>
                               <p className="text-sm text-gray-600">{item.description}</p>
                             </div>
-                            <span className="font-semibold">${item.price.toFixed(2)}</span>
+                            <span className="font-semibold">₹{item.price.toFixed(2)}</span>
                           </div>
                           <Button
                             onClick={() => addToCart(item)}
@@ -159,7 +159,7 @@ export default function CanteenService() {
                               <h3 className="font-semibold text-lg">{item.name}</h3>
                               <p className="text-sm text-gray-600">{item.description}</p>
                             </div>
-                            <span className="font-semibold">${item.price.toFixed(2)}</span>
+                            <span className="font-semibold">₹{item.price.toFixed(2)}</span>
                           </div>
                           <Button
                             onClick={() => addToCart(item)}
@@ -218,22 +218,22 @@ export default function CanteenService() {
                         </div>
                         <span className="font-medium">{item.name}</span>
                       </div>
-                      <span>${(item.price * item.quantity).toFixed(2)}</span>
+                      <span>₹{(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
 
                   <div className="border-t pt-4 mt-4">
                     <div className="flex justify-between text-sm mb-2">
                       <span className="text-gray-600">Subtotal</span>
-                      <span>${totalAmount.toFixed(2)}</span>
+                      <span>₹{totalAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm mb-4">
                       <span className="text-gray-600">Service Fee</span>
-                      <span>$1.00</span>
+                      <span>₹1.00</span>
                     </div>
                     <div className="flex justify-between text-lg font-semibold">
                       <span>Total</span>
-                      <span>${(totalAmount + 1).toFixed(2)}</span>
+                      <span>₹{(totalAmount + 1).toFixed(2)}</span>
                     </div>
                   </div>
 

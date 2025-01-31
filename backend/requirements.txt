@@ -6,3 +6,4 @@ prisma
 passlib
 groq
 httpx
+boto3

@@ -383,3 +383,44 @@ async def get_student(email: str):
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
     return student
+
+#s3
+import boto3
+from fastapi import UploadFile, File
+from fastapi.responses import StreamingResponse
+from botocore.exceptions import NoCredentialsError
+
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_BUCKET_NAME = "nirman"
+AWS_REGION = "us-east-1"
+
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_KEY,
+    region_name=AWS_REGION,
+)
+
+
+@app.post("/upload/")
+async def upload_file(file: UploadFile = File(...)):
+    try:
+        file_key = f"documents/{file.filename}"
+        s3_client.upload_fileobj(file.file, AWS_BUCKET_NAME, file_key)
+
+        # Generate public S3 URL
+        file_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_key}"
+
+        return {"file_url": file_url, "message": "File uploaded successfully"}
+
+    except NoCredentialsError:
+        raise HTTPException(status_code=500, detail="AWS credentials not found")
+
+@app.get("/download/{doc_id}")
+async def download_file(doc_id: int):
+    document = await db.document.find_unique(where={"id": doc_id})
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    return {"file_url": document.url}
