@@ -389,6 +389,7 @@ import boto3
 from fastapi import UploadFile, File
 from fastapi.responses import StreamingResponse
 from botocore.exceptions import NoCredentialsError
+from uuid import uuid4
 
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
@@ -403,7 +404,18 @@ s3_client = boto3.client(
 )
 
 
-@app.post("/upload/")
+# Example Pydantic model for request validation
+class UploadRequest(BaseModel):
+    studentId: str
+    documentType: str
+    copies: int
+    color: bool
+    oneSidePrint: bool
+    payment: float
+    accessories: str = None
+    paymentHistoryId: str = None
+
+@app.post("/upload")
 async def upload_file(
     studentId: str,
     documentType: str,
@@ -416,22 +428,30 @@ async def upload_file(
     file: UploadFile = File(...)
 ):
     try:
-        # Generate unique file key
-        file_key = f"documents/{uuid.uuid4()}_{file.filename}"
+        # Validate input
+        if copies <= 0:
+            raise HTTPException(status_code=400, detail="Copies must be greater than zero")
+        if payment < 0:
+            raise HTTPException(status_code=400, detail="Payment cannot be negative")
+
+        # Generate unique file key for S3
+        file_key = f"documents/{uuid4()}_{file.filename}"
         
         # Upload the file to S3
         s3_client.upload_fileobj(file.file, AWS_BUCKET_NAME, file_key)
-
+        file.file.close()  # Ensure the file is closed after upload
+        
         # Generate the public URL for the uploaded document
         file_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_key}"
-
+        print(file_url)
+        
         # Generate unique token for order tracking
-        order_token = str(uuid.uuid4())
-
+        order_token = str(uuid4())
+        
         # Save document metadata in the Prisma database
         document = await db.document.create(
             data={
-                "id": str(uuid.uuid4()),  # Generate a new ID
+                "id": str(uuid4()),  # Generate a new ID
                 "studentId": studentId,
                 "documentType": documentType,
                 "copies": copies,
@@ -441,20 +461,25 @@ async def upload_file(
                 "accessories": accessories,
                 "paymentHistoryId": paymentHistoryId,
                 "token": order_token,
-                "orderTrack": "PENDING",
-                "createdAt": "now()",
+                "orderTrack": "PENDING",  # Adjusted enum or string value based on your schema
+                "createdAt": datetime.now(),  # Use Python's datetime.now()
                 "documentUrl": file_url  # Save the S3 URL in the DB
             }
         )
-
+        
         return {"message": "File uploaded and order created", "file_url": file_url, "order_token": order_token}
-
+    
     except NoCredentialsError:
         raise HTTPException(status_code=500, detail="AWS credentials not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/download/{doc_id}")
-async def download_file(doc_id: int):
+async def download_file(doc_id: str):  # Use `str` instead of `int` for UUID
+    # Fetch document from Prisma DB by its ID
     document = await db.document.find_unique(where={"id": doc_id})
+    
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     
-    return {"file_url": document.url}
+    return {"file_url": document.documentUrl}

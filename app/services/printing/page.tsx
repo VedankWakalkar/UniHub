@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PrinterIcon, UploadIcon, ClockIcon } from "lucide-react";
-import Link from "next/link";
+import axios from "axios";
+import { PDFDocument } from "pdf-lib";  // Optional: For PDF page count
 
 interface Accessory {
   id: string;
@@ -32,6 +33,7 @@ export default function PrintingService() {
   const [selectedAccessories, setSelectedAccessories] = useState<{
     [key: string]: number;
   }>({});
+  const [pageCount, setPageCount] = useState(0);  // Dynamically calculated page count
 
   const accessoriesList: Accessory[] = [
     { id: "1", name: "Stapler", price: 50 },
@@ -39,10 +41,19 @@ export default function PrintingService() {
     { id: "3", name: "File Folder", price: 30 },
   ];
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      const pageCount = await getPageCount(file);
+      setPageCount(pageCount);
     }
+  };
+
+  const getPageCount = async (file: File) => {
+    const fileData = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(fileData);
+    return pdfDoc.getPages().length;
   };
 
   const handleAccessoryQuantity = (id: string, delta: number) => {
@@ -54,7 +65,6 @@ export default function PrintingService() {
   };
 
   // Calculate costs
-  const pageCount = 5; // Static for demonstration
   const pricePerPage = colorMode === "bw" ? 0.5 : 2;
   const pagesPerSheetValue = parseInt(pagesPerSheet);
   const totalPages = Math.ceil(pageCount / pagesPerSheetValue) * copies;
@@ -64,6 +74,45 @@ export default function PrintingService() {
       acc + (accessoriesList.find((a) => a.id === id)?.price || 0) * quantity,
     0
   );
+
+  // Handle form submission
+  const handleSubmit = async () => {
+    if (!selectedFile) {
+      alert("Please upload a file");
+      return;
+    }
+
+    try {
+      // Prepare form data
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("studentId", "student123"); // Replace with actual student ID
+      formData.append("documentType", "PDF"); // Example type
+      formData.append("copies", copies.toString());
+      formData.append("color", colorMode);
+      formData.append("pagesPerSheet", pagesPerSheet);
+      formData.append("paperSize", paperSize);
+      formData.append("payment", (printingCost + accessoriesTotal).toString());
+      formData.append("accessories", JSON.stringify(selectedAccessories));
+      formData.append("pickupTime", selectedTime || "");
+
+      // Send data to API
+      const response = await axios.post("http://127.0.0.1:8000/upload/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data.success) {
+        alert("Order placed successfully");
+      } else {
+        alert("Failed to place the order");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert(`An error occurred: ${error?.response?.data?.message || error.message}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
@@ -111,9 +160,7 @@ export default function PrintingService() {
                       <div className="bg-blue-50 p-4 rounded-lg flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <PrinterIcon className="h-5 w-5 text-blue-600" />
-                          <span className="font-medium">
-                            {selectedFile.name}
-                          </span>
+                          <span className="font-medium">{selectedFile.name}</span>
                         </div>
                         <Button
                           variant="ghost"
@@ -183,126 +230,58 @@ export default function PrintingService() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="accessories" className="space-y-4">
-                  <div className="grid grid-cols-1 gap-4">
-                    {accessoriesList.map((accessory) => (
-                      <Card
-                        key={accessory.id}
-                        className="p-4 flex items-center justify-between"
-                      >
-                        <div>
-                          <div className="font-medium">{accessory.name}</div>
-                          <div className="text-sm text-gray-500">
-                            ₹{accessory.price}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleAccessoryQuantity(accessory.id, -1)
-                            }
-                            disabled={!selectedAccessories[accessory.id]}
-                          >
-                            -
-                          </Button>
-                          <span className="w-8 text-center">
-                            {selectedAccessories[accessory.id] || 0}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleAccessoryQuantity(accessory.id, 1)
-                            }
-                          >
-                            +
-                          </Button>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
+                <TabsContent value="accessories" className="space-y-6">
+                  <h3 className="text-lg font-semibold">Accessories</h3>
+                  {accessoriesList.map((accessory) => (
+                    <div key={accessory.id} className="flex items-center justify-between">
+                      <span>{accessory.name}</span>
+                      <div className="flex items-center">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAccessoryQuantity(accessory.id, -1)}
+                        >
+                          -
+                        </Button>
+                        <span className="mx-2">{selectedAccessories[accessory.id] || 0}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAccessoryQuantity(accessory.id, 1)}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </TabsContent>
               </Tabs>
             </Card>
-
-            <Card className="p-6 animate-slide-up">
-              <h3 className="text-lg font-semibold mb-4">Pickup Time</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {["09:00", "10:00", "11:00", "12:00"].map((time) => (
-                  <Button
-                    key={time}
-                    variant={selectedTime === time ? "default" : "outline"}
-                    onClick={() => setSelectedTime(time)}
-                    className="flex items-center justify-center"
-                  >
-                    <ClockIcon className="h-4 w-4 mr-2" />
-                    {time}
-                  </Button>
-                ))}
-              </div>
-            </Card>
           </div>
 
-          <div className="lg:col-span-1">
-            <Card className="p-6 sticky top-24 animate-fade-in">
-              <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Pages</span>
-                  <span className="font-medium">{pageCount}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Color Mode</span>
-                  <span className="font-medium">
-                    {colorMode === "bw" ? "Black & White" : "Color"}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Paper Size</span>
-                  <span className="font-medium">
-                    {paperSize === "a4"
-                      ? "A4"
-                      : paperSize === "letter"
-                      ? "Letter"
-                      : "Legal"}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Copies</span>
-                  <span className="font-medium">{copies}</span>
-                </div>
-
-                {Object.entries(selectedAccessories).map(([id, quantity]) => {
-                  if (!quantity) return null;
-                  const accessory = accessoriesList.find((a) => a.id === id);
-                  if (!accessory) return null;
-                  return (
-                    <div key={id} className="flex justify-between text-sm">
-                      <span className="text-gray-600">
-                        {accessory.name} x{quantity}
-                      </span>
-                      <span className="font-medium">
-                        ₹{accessory.price * quantity}
-                      </span>
-                    </div>
-                  );
-                })}
-
-                <div className="pt-4 border-t">
-                  <div className="flex justify-between text-lg font-semibold">
-                    <span>Total</span>
-                    <span>₹{(printingCost + accessoriesTotal).toFixed(2)}</span>
-                  </div>
-                </div>
-                <Link href="payment">
-                  <Button className="w-full" size="lg">
-                    Place Order
-                  </Button>
-                </Link>
+          <div className="space-y-4">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold">Summary</h3>
+              <div className="flex justify-between">
+                <span>Total Pages</span>
+                <span>{totalPages}</span>
               </div>
-            </Card>
+              <div className="flex justify-between">
+                <span>Printing Cost</span>
+                <span>{printingCost.toFixed(2)} INR</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Accessories</span>
+                <span>{accessoriesTotal.toFixed(2)} INR</span>
+              </div>
+              <div className="flex justify-between font-semibold text-lg">
+                <span>Total Payment</span>
+                <span>{(printingCost + accessoriesTotal).toFixed(2)} INR</span>
+              </div>
+              <Button onClick={handleSubmit} className="w-full mt-4">
+                Place Order
+              </Button>
+            </div>
           </div>
         </div>
       </div>
