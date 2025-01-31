@@ -6,15 +6,29 @@ import { useState, useEffect } from "react";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isStudentLogged, setIsStudentLogged] = useState(false);
 
   useEffect(() => {
+    // Set scroll state for nav behavior
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
 
+    // Fetch the login status from localStorage on client-side
+    const checkLoginStatus = () => {
+      setIsStudentLogged(localStorage.getItem("isStudentLogged") === "true");
+    };
+
     window.addEventListener("scroll", handleScroll);
+    checkLoginStatus();
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("isStudentLogged");
+    window.location.reload(); // Reload the page to reflect changes
+  };
 
   return (
     <nav
@@ -78,14 +92,24 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Link href="/auth/signin">
+            {isStudentLogged ? (
               <Button
                 variant={isScrolled ? "default" : "outline"}
-                className={"hover:text-blue-500 font-semibold"}
+                className="hover:text-blue-500 font-semibold"
+                onClick={handleSignOut}
               >
-                Sign In
+                Sign Out
               </Button>
-            </Link>
+            ) : (
+              <Link href="/auth/signin">
+                <Button
+                  variant={isScrolled ? "default" : "outline"}
+                  className="hover:text-blue-500 font-semibold"
+                >
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -16,6 +16,11 @@ import { KeyIcon, UserIcon, ShieldIcon } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 
+export function getIsStudentLogged() {
+  return localStorage.getItem("isStudentLogged") === "true";
+}
+
+
 export default function SignIn() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +43,9 @@ export default function SignIn() {
 
       // Redirect based on user role
       const user_data = response.data;
+
+      const isStudent = user_data.user_data.role === "student";
+      localStorage.setItem("isStudentLogged", String(isStudent));
       sessionStorage.setItem("userEmail", email);
       console.log(user_data.user_data.role);
       switch (user_data.user_data.role) {
