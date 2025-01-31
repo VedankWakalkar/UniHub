@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
 
 interface MenuItem {
   id: string;
@@ -36,7 +37,8 @@ export default function CanteenService() {
       description: "Beef patty with lettuce, tomato, and cheese",
       price: 8.99,
       category: "main",
-      image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300",
+      image:
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300",
     },
     {
       id: "2",
@@ -44,7 +46,8 @@ export default function CanteenService() {
       description: "Fresh romaine lettuce with Caesar dressing",
       price: 6.99,
       category: "main",
-      image: "https://images.unsplash.com/photo-1546793665-c74683f339c1?auto=format&fit=crop&w=300",
+      image:
+        "https://images.unsplash.com/photo-1546793665-c74683f339c1?auto=format&fit=crop&w=300",
     },
     {
       id: "3",
@@ -52,7 +55,8 @@ export default function CanteenService() {
       description: "Fresh tomatoes, mozzarella, and basil",
       price: 12.99,
       category: "main",
-      image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=300",
+      image:
+        "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=300",
     },
     {
       id: "4",
@@ -60,13 +64,16 @@ export default function CanteenService() {
       description: "Cold-brewed coffee with milk",
       price: 3.99,
       category: "drinks",
-      image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=300",
+      image:
+        "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=300",
     },
   ];
 
   const addToCart = (item: MenuItem) => {
     setCart((currentCart) => {
-      const existingItem = currentCart.find((cartItem) => cartItem.id === item.id);
+      const existingItem = currentCart.find(
+        (cartItem) => cartItem.id === item.id
+      );
       if (existingItem) {
         return currentCart.map((cartItem) =>
           cartItem.id === item.id
@@ -82,9 +89,7 @@ export default function CanteenService() {
     setCart((currentCart) =>
       currentCart
         .map((item) =>
-          item.id === itemId
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
+          item.id === itemId ? { ...item, quantity: item.quantity - 1 } : item
         )
         .filter((item) => item.quantity > 0)
     );
@@ -115,7 +120,10 @@ export default function CanteenService() {
                 {menuItems
                   .filter((item) => item.category === "main")
                   .map((item) => (
-                    <Card key={item.id} className="p-4 hover:shadow-lg transition-all duration-300">
+                    <Card
+                      key={item.id}
+                      className="p-4 hover:shadow-lg transition-all duration-300"
+                    >
                       <div className="flex space-x-4">
                         <img
                           src={item.image}
@@ -125,10 +133,14 @@ export default function CanteenService() {
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="font-semibold text-lg">{item.name}</h3>
-                              <p className="text-sm text-gray-600">{item.description}</p>
+                              <h3 className="font-semibold text-lg">
+                                {item.name}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {item.description}
+                              </p>
                             </div>
-                            <span className="font-semibold">₹{item.price.toFixed(2)}</span>
+                            <span className="font-semibold">${item.price.toFixed(2)}</span>
                           </div>
                           <Button
                             onClick={() => addToCart(item)}
@@ -146,7 +158,10 @@ export default function CanteenService() {
                 {menuItems
                   .filter((item) => item.category === "drinks")
                   .map((item) => (
-                    <Card key={item.id} className="p-4 hover:shadow-lg transition-all duration-300">
+                    <Card
+                      key={item.id}
+                      className="p-4 hover:shadow-lg transition-all duration-300"
+                    >
                       <div className="flex space-x-4">
                         <img
                           src={item.image}
@@ -156,10 +171,14 @@ export default function CanteenService() {
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="font-semibold text-lg">{item.name}</h3>
-                              <p className="text-sm text-gray-600">{item.description}</p>
+                              <h3 className="font-semibold text-lg">
+                                {item.name}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {item.description}
+                              </p>
                             </div>
-                            <span className="font-semibold">₹{item.price.toFixed(2)}</span>
+                            <span className="font-semibold">${item.price.toFixed(2)}</span>
                           </div>
                           <Button
                             onClick={() => addToCart(item)}
@@ -195,7 +214,10 @@ export default function CanteenService() {
               ) : (
                 <div className="space-y-4">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between">
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between"
+                    >
                       <div className="flex items-center space-x-2">
                         <div className="flex items-center space-x-2">
                           <Button
@@ -206,7 +228,9 @@ export default function CanteenService() {
                           >
                             <MinusIcon className="h-4 w-4" />
                           </Button>
-                          <span className="w-8 text-center">{item.quantity}</span>
+                          <span className="w-8 text-center">
+                            {item.quantity}
+                          </span>
                           <Button
                             variant="outline"
                             size="icon"
@@ -236,10 +260,11 @@ export default function CanteenService() {
                       <span>₹{(totalAmount + 1).toFixed(2)}</span>
                     </div>
                   </div>
-
-                  <Button className="w-full" size="lg">
-                    Place Order
-                  </Button>
+                  <Link href="payment">
+                    <Button className="w-full" size="lg">
+                      Place Order
+                    </Button>
+                  </Link>
                 </div>
               )}
             </Card>

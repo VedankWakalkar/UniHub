@@ -37,9 +37,9 @@ export default function SignIn() {
       router.push(`/dashboard`);
 
       // Redirect based on user role
-      const  user_data  = response.data;
+      const user_data = response.data;
       sessionStorage.setItem("userEmail", email);
-      console.log(user_data.user_data.role)
+      console.log(user_data.user_data.role);
       switch (user_data.user_data.role) {
         case "student":
           router.push("/dashboard");
