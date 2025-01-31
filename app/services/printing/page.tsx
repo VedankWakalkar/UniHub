@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PrinterIcon, UploadIcon, ClockIcon } from "lucide-react";
+import Link from "next/link";
 
 interface Accessory {
   id: string;
@@ -28,7 +29,9 @@ export default function PrintingService() {
   const [paperSize, setPaperSize] = useState("a4");
   const [copies, setCopies] = useState(1);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [selectedAccessories, setSelectedAccessories] = useState<{ [key: string]: number }>({});
+  const [selectedAccessories, setSelectedAccessories] = useState<{
+    [key: string]: number;
+  }>({});
 
   const accessoriesList: Accessory[] = [
     { id: "1", name: "Stapler", price: 50 },
@@ -43,7 +46,7 @@ export default function PrintingService() {
   };
 
   const handleAccessoryQuantity = (id: string, delta: number) => {
-    setSelectedAccessories(prev => {
+    setSelectedAccessories((prev) => {
       const current = prev[id] || 0;
       const newQuantity = Math.max(0, current + delta);
       return { ...prev, [id]: newQuantity };
@@ -57,7 +60,8 @@ export default function PrintingService() {
   const totalPages = Math.ceil(pageCount / pagesPerSheetValue) * copies;
   const printingCost = totalPages * pricePerPage;
   const accessoriesTotal = Object.entries(selectedAccessories).reduce(
-    (acc, [id, quantity]) => acc + (accessoriesList.find(a => a.id === id)?.price || 0) * quantity,
+    (acc, [id, quantity]) =>
+      acc + (accessoriesList.find((a) => a.id === id)?.price || 0) * quantity,
     0
   );
 
@@ -66,7 +70,9 @@ export default function PrintingService() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 animate-fade-in">
           <h1 className="text-3xl font-bold text-gray-900">Printing Service</h1>
-          <p className="mt-2 text-gray-600">Print your documents quickly and easily</p>
+          <p className="mt-2 text-gray-600">
+            Print your documents quickly and easily
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -77,7 +83,7 @@ export default function PrintingService() {
                   <TabsTrigger value="upload">Upload & Settings</TabsTrigger>
                   <TabsTrigger value="accessories">Accessories</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="upload" className="space-y-6">
                   <div className="space-y-4">
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
@@ -105,7 +111,9 @@ export default function PrintingService() {
                       <div className="bg-blue-50 p-4 rounded-lg flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <PrinterIcon className="h-5 w-5 text-blue-600" />
-                          <span className="font-medium">{selectedFile.name}</span>
+                          <span className="font-medium">
+                            {selectedFile.name}
+                          </span>
                         </div>
                         <Button
                           variant="ghost"
@@ -135,7 +143,10 @@ export default function PrintingService() {
                       </div>
                       <div className="space-y-2">
                         <Label>Pages per Sheet</Label>
-                        <Select value={pagesPerSheet} onValueChange={setPagesPerSheet}>
+                        <Select
+                          value={pagesPerSheet}
+                          onValueChange={setPagesPerSheet}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select pages per sheet" />
                           </SelectTrigger>
@@ -161,9 +172,9 @@ export default function PrintingService() {
                       </div>
                       <div className="space-y-2">
                         <Label>Copies</Label>
-                        <Input 
-                          type="number" 
-                          min="1" 
+                        <Input
+                          type="number"
+                          min="1"
                           value={copies}
                           onChange={(e) => setCopies(Number(e.target.value))}
                         />
@@ -175,16 +186,23 @@ export default function PrintingService() {
                 <TabsContent value="accessories" className="space-y-4">
                   <div className="grid grid-cols-1 gap-4">
                     {accessoriesList.map((accessory) => (
-                      <Card key={accessory.id} className="p-4 flex items-center justify-between">
+                      <Card
+                        key={accessory.id}
+                        className="p-4 flex items-center justify-between"
+                      >
                         <div>
                           <div className="font-medium">{accessory.name}</div>
-                          <div className="text-sm text-gray-500">₹{accessory.price}</div>
+                          <div className="text-sm text-gray-500">
+                            ₹{accessory.price}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleAccessoryQuantity(accessory.id, -1)}
+                            onClick={() =>
+                              handleAccessoryQuantity(accessory.id, -1)
+                            }
                             disabled={!selectedAccessories[accessory.id]}
                           >
                             -
@@ -195,7 +213,9 @@ export default function PrintingService() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleAccessoryQuantity(accessory.id, 1)}
+                            onClick={() =>
+                              handleAccessoryQuantity(accessory.id, 1)
+                            }
                           >
                             +
                           </Button>
@@ -242,23 +262,30 @@ export default function PrintingService() {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Paper Size</span>
                   <span className="font-medium">
-                    {paperSize === "a4" ? "A4" : 
-                     paperSize === "letter" ? "Letter" : "Legal"}
+                    {paperSize === "a4"
+                      ? "A4"
+                      : paperSize === "letter"
+                      ? "Letter"
+                      : "Legal"}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Copies</span>
                   <span className="font-medium">{copies}</span>
                 </div>
-                
+
                 {Object.entries(selectedAccessories).map(([id, quantity]) => {
                   if (!quantity) return null;
-                  const accessory = accessoriesList.find(a => a.id === id);
+                  const accessory = accessoriesList.find((a) => a.id === id);
                   if (!accessory) return null;
                   return (
                     <div key={id} className="flex justify-between text-sm">
-                      <span className="text-gray-600">{accessory.name} x{quantity}</span>
-                      <span className="font-medium">₹{accessory.price * quantity}</span>
+                      <span className="text-gray-600">
+                        {accessory.name} x{quantity}
+                      </span>
+                      <span className="font-medium">
+                        ₹{accessory.price * quantity}
+                      </span>
                     </div>
                   );
                 })}
@@ -269,9 +296,11 @@ export default function PrintingService() {
                     <span>₹{(printingCost + accessoriesTotal).toFixed(2)}</span>
                   </div>
                 </div>
-                <Button className="w-full" size="lg">
-                  Place Order
-                </Button>
+                <Link href="payment">
+                  <Button className="w-full" size="lg">
+                    Place Order
+                  </Button>
+                </Link>
               </div>
             </Card>
           </div>
