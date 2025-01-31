@@ -35,20 +35,22 @@ model PaymentHistory {
 }
 
 model Document {
-  id           String       @id @default(uuid())
-  studentId    String
-  student      Student      @relation(fields: [studentId], references: [id])
-  documentType String
-  copies       Int
-  color        Boolean
-  oneSidePrint Boolean
+  id              String    @id @default(uuid())
+  studentId       String
+  student         Student   @relation(fields: [studentId], references: [id])
+  documentType    String
+  copies          Int
+  color           Boolean
+  oneSidePrint    Boolean
   paymentHistoryId String?
-  token        String       @unique
-  payment      Float
-  orderTrack   PrintStatus  @default(PENDING)
-  accessories  Accessories?
-  createdAt    DateTime     @default(now())
+  token           String    @unique
+  payment         Float
+  orderTrack      PrintStatus @default(PENDING)
+  accessories     Accessories?
+  createdAt       DateTime  @default(now())
+  documentUrl     String    // New field to store the document URL
 }
+
 
 enum PrintStatus {
   PENDING
@@ -74,7 +76,6 @@ model Accessories {
 
 model AccessoryOrderItem {
   id             String      @id @default(uuid())
-  accessory      AccessoryItem @relation(fields: [accessoryItemId], references: [id])
   accessoryItemId String
   accessories    Accessories @relation(fields: [accessoriesId], references: [id])
   accessoriesId  String

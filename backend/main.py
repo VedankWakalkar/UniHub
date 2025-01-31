@@ -404,19 +404,53 @@ s3_client = boto3.client(
 
 
 @app.post("/upload/")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(
+    studentId: str,
+    documentType: str,
+    copies: int,
+    color: bool,
+    oneSidePrint: bool,
+    payment: float,
+    accessories: str = None,
+    paymentHistoryId: str = None,
+    file: UploadFile = File(...)
+):
     try:
-        file_key = f"documents/{file.filename}"
+        # Generate unique file key
+        file_key = f"documents/{uuid.uuid4()}_{file.filename}"
+        
+        # Upload the file to S3
         s3_client.upload_fileobj(file.file, AWS_BUCKET_NAME, file_key)
 
-        # Generate public S3 URL
+        # Generate the public URL for the uploaded document
         file_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_key}"
 
-        return {"file_url": file_url, "message": "File uploaded successfully"}
+        # Generate unique token for order tracking
+        order_token = str(uuid.uuid4())
+
+        # Save document metadata in the Prisma database
+        document = await db.document.create(
+            data={
+                "id": str(uuid.uuid4()),  # Generate a new ID
+                "studentId": studentId,
+                "documentType": documentType,
+                "copies": copies,
+                "color": color,
+                "oneSidePrint": oneSidePrint,
+                "payment": payment,
+                "accessories": accessories,
+                "paymentHistoryId": paymentHistoryId,
+                "token": order_token,
+                "orderTrack": "PENDING",
+                "createdAt": "now()",
+                "documentUrl": file_url  # Save the S3 URL in the DB
+            }
+        )
+
+        return {"message": "File uploaded and order created", "file_url": file_url, "order_token": order_token}
 
     except NoCredentialsError:
         raise HTTPException(status_code=500, detail="AWS credentials not found")
-
 @app.get("/download/{doc_id}")
 async def download_file(doc_id: int):
     document = await db.document.find_unique(where={"id": doc_id})
