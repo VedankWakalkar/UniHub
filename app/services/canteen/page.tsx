@@ -245,7 +245,6 @@ export default function CanteenService() {
                       <span>₹{(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
-
                   <div className="border-t pt-4 mt-4">
                     <div className="flex justify-between text-sm mb-2">
                       <span className="text-gray-600">Subtotal</span>
