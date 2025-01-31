@@ -42,7 +42,6 @@ model Document {
   copies       Int
   color        Boolean
   oneSidePrint Boolean
-  paymentHistory PaymentHistory? @relation(fields: [paymentHistoryId], references: [id])
   paymentHistoryId String?
   token        String       @unique
   payment      Float
