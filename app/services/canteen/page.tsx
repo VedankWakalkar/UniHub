@@ -34,7 +34,7 @@ export default function CanteenService() {
     {
       id: "1",
       name: "Classic Burger",
-      description: "Beef patty with lettuce, tomato, and cheese",
+      description: "Delicious, juicy burgers made fresh for you!",
       price: 8.99,
       category: "main",
       image:
